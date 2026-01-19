@@ -27,18 +27,18 @@ _bashlib_dir() {
     [[ "$src" != /* ]] && src="$dir/$src"
   done
   dir="$(cd -P -- "$(dirname -- "$src")" && pwd)"
-  printf '%s\n' "$dir"
+  printf '%s/lib\n' "$dir"
 }
-declare -gr BASHLIB_ROOT="$(_bashlib_dir)/lib"
-declare -gr BASHLIB_VERSION="0.1.0"
 
-# source modules (no side effects!)
-# shellcheck source=lib/log.sh
-#source "${BASHLIB_ROOT}/log.sh"
-## shellcheck source=lib/fs.sh
-#source "${BASHLIB_ROOT}/fs.sh"
-# shellcheck source=lib/string.sh
-#source "${BASHLIB_ROOT}/string.sh"
+_bashlib_root="$(_bashlib_dir)" || {
+  printf 'error: _bashlib_dir failed to resolve root.\n' >&2
+  return 1
+}
+declare -gr BASHLIB_ROOT="${_bashlib_root}"
+unset _bashlib_root
+
+declare -grx BASHLIB_VERSION="0.1.0"
+
 
 # strict-mode helper (optional)
 bashlib::enable_strict_mode() {
